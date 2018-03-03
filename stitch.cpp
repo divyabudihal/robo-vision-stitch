@@ -44,18 +44,18 @@ int main(int, char**)
         return -1;
     }
 
-    // thread out1 (stream, vid1, "Video 1 Output");     // spawn new thread that calls foo()
+    thread out1 (stream, ref(vid1), "Video 1 Output");     // spawn new thread that calls foo()
     // thread out2 (stream, vid2, "Video 2 Output");  // spawn new thread that calls bar(0)
 
     // cout << "Streaming of two videos now executing concurrently...\n";
 
     // // synchronize threads:
-    // out1.join();                // pauses until first finishes
+    out1.join();                // pauses until first finishes
     // out2.join();               // pauses until second finishes
 
     // cout << "Streaming completed.\n";
 
-    stream(vid1, "Video 1 Output");
+    //stream(vid1, "Video 1 Output");
 
     
     // for(;;)
