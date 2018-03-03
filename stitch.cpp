@@ -79,16 +79,25 @@ int main(int, char**)
 
     cout << "Initializing thread for Video 1..." << endl;
     thread out1 (outputVid, ref(vid1), "Video 1 Output", vid1Output);     // spawn new thread that calls foo()
-    // cout << "Initializing thread for Video 2..." << endl;
-    // thread out2 (stream, ref(vid2), "Video 2 Output");  // spawn new thread that calls bar(0)
+    cout << "Initializing thread for Video 2..." << endl;
+    thread out2 (outputVid, ref(vid2), "Video 2 Output", vid2Output);  // spawn new thread that calls bar(0)
 
+    thread::id id1 = out1.get_id();
+    thread::id id2 = out2.get_id();
     // cout << "Streaming of two videos now executing concurrently...\n";
 
     // // synchronize threads:
-    cout << "Joining thread for Video 1..." << endl;
-    out1.join();                // pauses until first finishes
-    // cout << "Joining thread for Video 2..." << endl;
-    // out2.join();               // pauses until second finishes
+    if (out1.joinable())
+    {
+        cout << "Joining thread for Video 1, ID = " << id1 << endl;
+        out1.join();                // pauses until first finishes
+    }
+    
+    if (out2.joinable())
+    {
+        cout << "Joining thread for Video 2, ID = " << id1 << endl;
+        out2.join();               // pauses until second finishes
+    }
 
     // cout << "Streaming completed.\n";
 
