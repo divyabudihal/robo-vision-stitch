@@ -918,7 +918,7 @@ void outputVid ( Mat& readerMat1, Mat& readerMat2, bool& reader1, bool& reader2,
         // cout << "Waiting for next Reader 1 frame..." << endl;
     } //wait
     // readerMat1.copyTo(frame);    
-    if (reader1Done == true && reader1Done == false && reader2Done == false)
+    if (reader1 == true && reader1Done == false && reader2Done == false)
     {
         reader1 = false;
         vidOut.write(readerMat1);
@@ -1056,8 +1056,8 @@ void reader2 (VideoCapture& vid, Mat& readerMat2, bool& reader2)
 
 int main(int, char**)
 {
-    string vid1Location = "test7.mp4";
-    string vid2Location = "test8.mp4";
+    string vid1Location = "test5.mp4";
+    string vid2Location = "test6.mp4";
 
     string vid1Output = "video1.avi";
     string vid2Output = "video2.avi";
