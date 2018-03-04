@@ -923,15 +923,16 @@ void outputVid ( Mat& readerMat1, Mat& readerMat2, bool& reader1, bool& reader2,
         reader1 = false;
         if (readerMat1.empty())
             break;
-        Mat frame;
+        // Mat frame;
 
-        // resize(readerMat1,readerMat1,Size(frameWidth, frameHeight));
-        resize(readerMat1,frame,Size(frameWidth, frameHeight));
+        resize(readerMat1,readerMat1,Size(frameWidth, frameHeight));
+        // resize(readerMat1,frame,Size(frameWidth, frameHeight));
+        // resize(readerMat1, Size(frameWidth, frameHeight));
         //cout << readerMat1.size() << endl;
         //if (readerMat1.size() == Size(frameWidth, frameHeight))
-        // vidOut.write(readerMat1);
-        vidOut.write(frame);
-        // imshow( outputWindow, readerMat1 );
+        vidOut.write(readerMat1);
+        // vidOut.write(frame);
+        imshow( outputWindow, readerMat1 );
     }
 
 
@@ -945,9 +946,13 @@ void outputVid ( Mat& readerMat1, Mat& readerMat2, bool& reader1, bool& reader2,
         reader2 = false;
         if (readerMat2.empty())
             break;
+        // Mat frame2;
         resize(readerMat2,readerMat2,Size(frameWidth, frameHeight));
+        // resize(readerMat2,frame2,Size(frameWidth, frameHeight));
+        // resize(readerMat2,Size(frameWidth, frameHeight));
         vidOut.write(readerMat2);
-        // imshow( outputWindow, readerMat2 ); // Display the resulting frame 
+        // vidOut.write(frame2);
+        imshow( outputWindow, readerMat2 ); // Display the resulting frame 
     }
         
 
@@ -1001,7 +1006,7 @@ int main(int, char**)
     // string vid1Input = "test5.mp4";
     // string vid2Input = "tesst6.mp4";
 
-    string vid1Input = "./iris-tests/dynamic_test.mp4";
+    string vid1Input = "test5.mp4";
     string vid2Input = "./iris-tests/field_trees.avi";
 
     string vid1Output = "video1.avi";
@@ -1040,24 +1045,30 @@ int main(int, char**)
     if (vid1.get(CV_CAP_PROP_FRAME_HEIGHT) <= vid2.get(CV_CAP_PROP_FRAME_HEIGHT))
     {
         frameHeight = vid1.get(CV_CAP_PROP_FRAME_HEIGHT);
+        // vid2.set(CV_CAP_PROP_FRAME_HEIGHT, frameHeight);
     }
     else
     {
         frameHeight = vid2.get(CV_CAP_PROP_FRAME_HEIGHT);
+        // vid1.set(CV_CAP_PROP_FRAME_HEIGHT, frameHeight);
     }
 
     // choose smallest frame width
     if (vid1.get(CV_CAP_PROP_FRAME_WIDTH) <= vid2.get(CV_CAP_PROP_FRAME_WIDTH))
     {
         frameWidth = vid1.get(CV_CAP_PROP_FRAME_WIDTH);
+        // vid2.set(CV_CAP_PROP_FRAME_WIDTH, frameWidth);
     }
     else
     {
         frameWidth = vid2.get(CV_CAP_PROP_FRAME_WIDTH);
+        // vid1.set(CV_CAP_PROP_FRAME_WIDTH, frameWidth);
     }
 
-    cout << frameHeight << endl;
-    cout << frameWidth << endl;
+    
+    cout << "Output Frame Width: " << frameWidth << endl;
+    cout << "Output Frame Height: " << frameHeight << endl;
+    
     
     cout << "Initializing thread for Video 1..." << endl;
     thread out1 (reader, ref(vid1), ref(readerMat1), ref(reader1Flag), vid1Input);     // spawn new thread that calls foo()
