@@ -26,11 +26,13 @@ void stream (VideoCapture& vid, string outputWindow)
 void outputVid (VideoCapture& vid, string outputWindow, string outputFile)
 {
     // Default resolution of the frame is obtained.The default resolution is system dependent. 
-    int frame_width = vid.get(CV_CAP_PROP_FRAME_WIDTH); 
-    int frame_height = vid.get(CV_CAP_PROP_FRAME_HEIGHT); 
-
+    int frameWidth = vid.get(CV_CAP_PROP_FRAME_WIDTH); 
+    int frameHeight = vid.get(CV_CAP_PROP_FRAME_HEIGHT); 
+    double frameRate = vid.get(CV_CAP_PROP_FPS);
+    
     // Define the codec and create VideoWriter object.The output is stored in 'outcpp.avi' file. 
-    VideoWriter vidOut(outputFile,CV_FOURCC('M','J','P','G'),10, Size(frame_width,frame_height)); 
+    VideoWriter vidOut(outputFile,CV_FOURCC('M','P','J','G'), 30, Size(frameWidth,frameHeight)); 
+    
     while(1)
     { 
     Mat frame; 
@@ -41,10 +43,11 @@ void outputVid (VideoCapture& vid, string outputWindow, string outputFile)
     // If the frame is empty, break immediately
     if (frame.empty())
         break;
-    bitwise_not ( frame, frame); // invert frame
+    bitwise_not (frame, frame); // invert frame
     // Write the frame into the file 'outcpp.avi'
     vidOut.write(frame);
 
+    //cout << "Writing to file " << outputFile << endl;
     // Display the resulting frame    
     imshow( outputWindow, frame );
 
@@ -57,6 +60,10 @@ void outputVid (VideoCapture& vid, string outputWindow, string outputFile)
 
 int main(int, char**)
 {
+    // int frameHeight;
+    // int frameWidth;
+    // int frameRate;
+    
     string vid1Location = "./iris-tests/dynamic_test.mp4";
     string vid2Location = "./iris-tests/field_trees.avi";
 
@@ -79,11 +86,11 @@ int main(int, char**)
 
     cout << "Initializing thread for Video 1..." << endl;
     thread out1 (outputVid, ref(vid1), "Video 1 Output", vid1Output);     // spawn new thread that calls foo()
-    cout << "Initializing thread for Video 2..." << endl;
-    thread out2 (outputVid, ref(vid2), "Video 2 Output", vid2Output);  // spawn new thread that calls bar(0)
+    // cout << "Initializing thread for Video 2..." << endl;
+    // thread out2 (outputVid, ref(vid2), "Video 2 Output", vid2Output);  // spawn new thread that calls bar(0)
 
     thread::id id1 = out1.get_id();
-    thread::id id2 = out2.get_id();
+    // thread::id id2 = out2.get_id();
     // cout << "Streaming of two videos now executing concurrently...\n";
 
     // // synchronize threads:
@@ -93,29 +100,13 @@ int main(int, char**)
         out1.join();                // pauses until first finishes
     }
     
-    if (out2.joinable())
-    {
-        cout << "Joining thread for Video 2, ID = " << id1 << endl;
-        out2.join();               // pauses until second finishes
-    }
-
-    // cout << "Streaming completed.\n";
-
-    //stream(vid1, "Video 1 Output");
-
-    
-    // for(;;)
+    // if (out2.joinable())
     // {
-    //     Mat frame;
-    //     vid >> frame; // get a new frame from video
-    //     //invert(frame);
-    //     //cvtColor(frame, edges, CV_BGR2GRAY);
-    //     // GaussianBlur(edges, edges, Size(7,7), 1.5, 1.5);
-    //     // Canny(edges, edges, 0, 30, 3);
-    //     bitwise_not ( frame, frame);
-    //     imshow("Output Video", frame);
-    //     if(waitKey(30) >= 0) break;
+    //     cout << "Joining thread for Video 2, ID = " << id2 << endl;
+    //     out2.join();               // pauses until second finishes
     // }
+
+
     // the camera will be deinitialized automatically in VideoCapture destructor
     destroyAllWindows();
     return 0;
