@@ -893,29 +893,38 @@ void outputVid ( Mat& readerMat1, Mat& readerMat2, bool& reader1, bool& reader2,
     // int frame_height = vid.get(CV_CAP_PROP_FRAME_HEIGHT); 
 
     // Define the codec and create VideoWriter object.The output is stored in 'outcpp.avi' file. 
+    cout << "Starting to write to file..." << endl;
     VideoWriter vidOut(outputFile,CV_FOURCC('M','J','P','G'),10, Size(1920,1080)); 
     while(1)
     { 
     Mat frame; 
         
-    if (reader1 != false)
+    
+    while (reader1 == false)
     {
-        readerMat1.copyTo(frame);
-    }
-    else if (reader2 != false)
+        cout << "Waiting for next Reader 1 frame..." << endl;
+    } //wait
+    readerMat1.copyTo(frame);    
+    reader1 = false;
+    
+    cout << "Writing Reader 1 frame to file..." << endl;   
+    if (frame.empty())
+        break;
+    bitwise_not ( frame, frame); 
+    vidOut.write(frame);
+
+    while (reader2 == false)
     {
-        readerMat2.copyTo(frame);
-    }
-    else{
-        while (reader1 == 0 && reader2 == 0);
-    }
-
-
+        cout << "Waiting for next Reader 2 frame..." << endl;
+    }  // wait
+    readerMat2.copyTo(frame);
+    reader2 = false;
+    
+    cout << "Writing Reader 2 frame to file..." << endl;
     // If the frame is empty, break immediately
     if (frame.empty())
         break;
     bitwise_not ( frame, frame); // invert frame
-    // Write the frame into the file 'outcpp.avi'
     vidOut.write(frame);
 
     // Display the resulting frame    
@@ -926,30 +935,40 @@ void outputVid ( Mat& readerMat1, Mat& readerMat2, bool& reader1, bool& reader2,
     if( c == 27 ) 
         break;
     }
+
+    cout << "Finished writing to file." << endl;
 }
 
 
 void reader1 (VideoCapture& vid, Mat& readerMat1, bool& reader1)
 {
-
+    cout << "Reader 1 Active" << endl;
     while(1)
     { 
     Mat frame; 
         
     // Capture frame-by-frame 
     vid >> frame;
+    bitwise_not ( frame, frame); // invert frame
 
+    // if (reader1 == false)
+    // {
+    //     reader1 == true;
+    // }
+    cout << "Reader 1 reading value..." << endl;
     // If the frame is empty, break immediately
     if (frame.empty())
         break;
-    bitwise_not ( frame, frame); // invert frame
+   
     // Write the frame into the file 'outcpp.avi'
     while (reader1 != false)
     {
-        frame.copyTo(readerMat1);
-        reader1 = true;
+        // frame.copyTo(readerMat1);
+        cout << "Reader 1 holding value..." << endl;
+        // // reader1 = true;
     }
 
+    frame.copyTo(readerMat1);
     char c = (char)waitKey(1);
     if( c == 27 ) 
         break;
@@ -958,7 +977,7 @@ void reader1 (VideoCapture& vid, Mat& readerMat1, bool& reader1)
 
 void reader2 (VideoCapture& vid, Mat& readerMat2, bool& reader2)
 {
-
+    cout << "Reader 2 Active" << endl;
     while(1)
     { 
     Mat frame; 
@@ -966,6 +985,11 @@ void reader2 (VideoCapture& vid, Mat& readerMat2, bool& reader2)
     // Capture frame-by-frame 
     vid >> frame;
 
+    // if (reader2 == false)
+    // {
+    //     reader2 == true;
+    // }
+    cout << "Reader 2 reading value..." << endl;
     // If the frame is empty, break immediately
     if (frame.empty())
         break;
@@ -973,10 +997,12 @@ void reader2 (VideoCapture& vid, Mat& readerMat2, bool& reader2)
     // Write the frame into the file 'outcpp.avi'
     while (reader2 != false)
     {
-        frame.copyTo(readerMat2);
-        reader2 = true;
+        // frame.copyTo(readerMat2);
+        cout << "Reader 2 holding value..." << endl;
+        // // reader2 = true;
     }
     
+    frame.copyTo(readerMat2);
     char c = (char)waitKey(1);
     if( c == 27 ) 
         break;
@@ -995,8 +1021,8 @@ int main(int, char**)
     Mat readerMat1;
     Mat readerMat2;
 
-    bool reader1Flag;
-    bool reader2Flag;
+    bool reader1Flag = false;
+    bool reader2Flag = false;
     
     VideoCapture vid1(vid1Location); // open the first test file
     if(!vid1.isOpened())  // check if we succeeded
