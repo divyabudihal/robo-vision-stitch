@@ -34,6 +34,7 @@ void stream (VideoCapture& vid, string outputWindow)
         if (frame.empty())
             break;
         bitwise_not ( frame, frame);
+        
         imshow(outputWindow, frame);
         if(waitKey(30) >= 0) break;
     }
@@ -75,27 +76,29 @@ void outputVid (VideoCapture& vid, string outputWindow, string outputFile)
     }
 }
 
-void processVid(VideoCapture& vid, queue<myMat>& record, string vidInput)
+void processVid(VideoCapture& vid, queue<Mat>& record, string vidInput)
 {
     
     while(1)
     {
         Mat frame;
-        myMat enqueue;
+        Mat enqueue;
         vid >> frame; // get a new frame from video
         if (frame.empty())
             break;
         bitwise_not (frame, frame);
+        cvtColor(frame, frame, CV_BGR2GRAY);
         // imshow(outputWindow, frame);
         // record.push(myMat()); // create a new empty mat
         // frame.copyTo(record.front().frame);  // take a full copy
         // record.front().inputFile = vidInput;
-        enqueue.inputFile = vidInput;
-        frame.copyTo(enqueue.frame);
+        // enqueue.inputFile = vidInput;
+        // frame.copyTo(enqueue.frame);
+        frame.copyTo(enqueue);
         record.push(enqueue);
-        cout << "Frame Size: " << (record.front().frame).size() << endl;
+        cout << "Frame Size: " << (record.front()).size() << endl;
         // cout << record.front().frame << endl;
-        cout << record.front().inputFile << endl;
+        // cout << record.front().inputFile << endl;
         cout << "Reading from " << vidInput << endl;
         if(waitKey(30) >= 0) break;
     }
@@ -104,7 +107,7 @@ void processVid(VideoCapture& vid, queue<myMat>& record, string vidInput)
 
 
 
-void createVid( VideoCapture& vid, queue<myMat>& recordVid1, queue<myMat>& recordVid2, string outputFile)
+void createVid( VideoCapture& vid, queue<Mat>& recordVid1, queue<Mat>& recordVid2, string outputFile)
 {
     int frameWidth = vid.get(CV_CAP_PROP_FRAME_WIDTH); 
     int frameHeight = vid.get(CV_CAP_PROP_FRAME_HEIGHT); 
@@ -116,28 +119,78 @@ void createVid( VideoCapture& vid, queue<myMat>& recordVid1, queue<myMat>& recor
     cout << "Starting to create video ..." << endl;
     while (!recordVid1.empty() && !recordVid2.empty())
     {
-        if ((recordVid1.front().frame).empty() || (recordVid2.front().frame).empty())
+        // if ((recordVid1.front().frame).empty() || (recordVid2.front().frame).empty())
+        //     break;
+        // //cout << "Writing to " << outputFile << endl;
+        // cout << recordVid1.front().inputFile << endl;
+        // cout << "Size of queue: " << recordVid1.size() << endl;
+        // cout << "Frame Size: " << (recordVid1.front().frame).size() << endl;
+        
+        // vidOut.write(recordVid1.front().frame);
+        // recordVid1.pop();
+
+        // cout << recordVid2.front().inputFile << endl;
+        // cout << "Size of queue: " << recordVid2.size() << endl;
+        // cout << "Frame Size: " << (recordVid2.front().frame).size() << endl;
+        
+        // vidOut.write(recordVid2.front().frame);
+        // recordVid2.pop();
+
+         if ((recordVid1.front()).empty() || (recordVid2.front()).empty())
             break;
         //cout << "Writing to " << outputFile << endl;
-        cout << recordVid1.front().inputFile << endl;
         cout << "Size of queue: " << recordVid1.size() << endl;
-        cout << "Frame Size: " << (recordVid1.front().frame).size() << endl;
+        cout << "Frame Size: " << (recordVid1.front()).size() << endl;
         
-        vidOut.write(recordVid1.front().frame);
+        vidOut.write(recordVid1.front());
         recordVid1.pop();
 
-        cout << recordVid2.front().inputFile << endl;
         cout << "Size of queue: " << recordVid2.size() << endl;
-        cout << "Frame Size: " << (recordVid2.front().frame).size() << endl;
+        cout << "Frame Size: " << (recordVid2.front()).size() << endl;
         
-        vidOut.write(recordVid2.front().frame);
-        recordVid1.pop();
-        //imshow("Test", record.front().frame);
+        vidOut.write(recordVid2.front());
+        recordVid2.pop();
+        //imshow("Test", record.front());
         
         if(waitKey(10) >= 0) break;
     }
 
 }
+
+// void createVid( VideoCapture& vid, queue<Mat>& record, string outputFile)
+// {
+//     int frameWidth = vid.get(CV_CAP_PROP_FRAME_WIDTH); 
+//     int frameHeight = vid.get(CV_CAP_PROP_FRAME_HEIGHT); 
+//     double frameRate = vid.get(CV_CAP_PROP_FPS);
+    
+//     // Define the codec and create VideoWriter object.The output is stored in 'outcpp.avi' file. 
+//     VideoWriter vidOut(outputFile,CV_FOURCC('M','P','J','G'), 10, Size(frameWidth,frameHeight)); 
+//     Mat currFrame;
+//     cout << "Starting to create video ..." << endl;
+//     while (!record.empty() && !recordVid2.empty())
+//     {
+//         if ((record.front().frame).empty() || (recordVid2.front().frame).empty())
+//             break;
+//         //cout << "Writing to " << outputFile << endl;
+//         cout << record.front().inputFile << endl;
+//         cout << "Size of queue: " << record.size() << endl;
+//         cout << "Frame Size: " << (record.front().frame).size() << endl;
+        
+//         vidOut.write(record.front().frame);
+//         record.pop();
+
+//         cout << recordVid2.front().inputFile << endl;
+//         cout << "Size of queue: " << recordVid2.size() << endl;
+//         cout << "Frame Size: " << (recordVid2.front().frame).size() << endl;
+        
+//         vidOut.write(recordVid2.front().frame);
+//         record.pop();
+//         //imshow("Test", record.front().frame);
+        
+//         if(waitKey(10) >= 0) break;
+//     }
+
+// }
 
 int main(int, char**)
 {
@@ -154,8 +207,8 @@ int main(int, char**)
     string vid1Output = "video1.avi";
     string vid2Output = "video2.avi";
 
-    queue<myMat> vid1Queue;
-    queue<myMat> vid2Queue;
+    queue<Mat> vid1Queue;
+    queue<Mat> vid2Queue;
     
     VideoCapture vid1(vid1Location); // open the first test file
     if(!vid1.isOpened())  // check if we succeeded
