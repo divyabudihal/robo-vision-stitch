@@ -96,7 +96,9 @@ void processVid(VideoCapture& vid, queue<Mat>& record, string vidInput)
         // frame.copyTo(enqueue.frame);
         frame.copyTo(enqueue);
         record.push(enqueue);
+        
         cout << "Frame Size: " << (record.front()).size() << endl;
+        cout << vidInput << " Queue Size: " << record.size() << endl;
         // cout << record.front().frame << endl;
         // cout << record.front().inputFile << endl;
         cout << "Reading from " << vidInput << endl;
@@ -230,12 +232,12 @@ int main(int, char**)
     cout << "Initializing thread to process Video 2..." << endl;
     thread out2 (processVid, ref(vid2), ref(vid2Queue), vid2Input);  // spawn new thread that calls bar(0)
     
-    cout << "Initializing thread to create output video...";
-    thread out3 (createVid, ref(vid2), ref(vid1Queue), ref(vid2Queue), vid1Output);
+    // cout << "Initializing thread to create output video...";
+    // thread out3 (createVid, ref(vid2), ref(vid1Queue), ref(vid2Queue), vid1Output);
    
     thread::id id1 = out1.get_id();
     thread::id id2 = out2.get_id();
-    thread::id id3 = out3.get_id();
+    // thread::id id3 = out3.get_id();
     // cout << "Streaming of two videos now executing concurrently...\n";
 
     // // synchronize threads:
@@ -252,11 +254,11 @@ int main(int, char**)
         out2.join();               // pauses until second finishes
     }
 
-    if (out3.joinable())
-    {
-        cout << "Joining thread for Output Video, ID = " << id3 << endl;
-        out3.join();               // pauses until second finishes
-    }
+    // if (out3.joinable())
+    // {
+    //     cout << "Joining thread for Output Video, ID = " << id3 << endl;
+    //     out3.join();               // pauses until second finishes
+    // }
 
     // cout << (vid2Queue.front().frame).size() << endl;
     // vid2Queue.pop();
@@ -267,7 +269,7 @@ int main(int, char**)
     // vid2Queue.pop();
     // cout << (vid2Queue.front().frame).size() << endl;
 
-    // createVid( ref(vid2), ref(vid2Queue), vid2Output);
+    createVid( ref(vid2), ref(vid1Queue), ref(vid2Queue), vid2Output);
 
     // the camera will be deinitialized automatically in VideoCapture destructor
     destroyAllWindows();
