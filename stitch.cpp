@@ -873,6 +873,7 @@ using namespace std;
 bool reader1Done = false;
 bool reader2Done = false;
 
+bool readersDone = false;
 
 void stream (VideoCapture& vid, string outputWindow)
 {
@@ -909,16 +910,16 @@ void outputVid ( Mat& readerMat1, Mat& readerMat2, bool& reader1, bool& reader2,
     // if (reader2Done ==  true)
     // cout << "Start checking for conditions writer" << endl;
 
-    if (reader1Done == true && reader2Done == true)
+    if (readersDone == true)
         break;
     
    
-    while (reader1 == false && reader1Done == false && reader2Done == false)
+    while (reader1 == false && readersDone == false)
     {
         // cout << "Waiting for next Reader 1 frame..." << endl;
     } //wait
     // readerMat1.copyTo(frame);    
-    if (reader1 == true && reader1Done == false && reader2Done == false)
+    if (reader1 == true && readersDone == false)
     {
         reader1 = false;
         vidOut.write(readerMat1);
@@ -926,12 +927,12 @@ void outputVid ( Mat& readerMat1, Mat& readerMat2, bool& reader1, bool& reader2,
     }
 
 
-    while (reader2 == false && reader1Done == false && reader2Done == false)
+    while (reader2 == false && readersDone == false)
     {
         // cout << "Waiting for next Reader 2 frame..." << endl;
     }  // waits
     //readerMat2.copyTo(frame);
-    if (reader2 == true && reader2Done == false && reader1Done == false)
+    if (reader2 == true && readersDone == false)
     {
         reader2 = false;
         vidOut.write(readerMat2);
@@ -945,7 +946,7 @@ void outputVid ( Mat& readerMat1, Mat& readerMat2, bool& reader1, bool& reader2,
         break;
     }
 
-    cout << "Finished writing to file." << endl;
+    cout << "Finished writing to output file." << endl;
 }
 
 
@@ -955,7 +956,7 @@ void reader1 (VideoCapture& vid, Mat& readerMat1, bool& reader1)
     while(1)
     { 
             // cout << "hi" << endl;
-    if (reader2Done == true)
+    if (readersDone == true)
     {
         cout << "Reader 2 finished loop" << endl;
         reader1 = false;
@@ -974,7 +975,7 @@ void reader1 (VideoCapture& vid, Mat& readerMat1, bool& reader1)
    
    
     // Write the frame into the file 'outcpp.avi'
-    while (reader1 != false && reader1Done == false && reader2Done == false)
+    while (reader1 != false && readersDone == false)
     {
         // frame.copyTo(readerMat1);
         // cout << "Reader 1 holding value..." << endl;
@@ -993,10 +994,10 @@ void reader1 (VideoCapture& vid, Mat& readerMat1, bool& reader1)
     reader1 = true;
     }
     cout << "Reader is done capturing frames from Video 1." << endl;
-    reader1Done = true;
-    cout << "Reader 2: " << reader2Done << endl;
-    cout << "Reader 1: " << reader1Done << endl;
-    cout << "Reader1: " << reader1 << endl;
+    readersDone = true;
+    // cout << "Reader 2: " << reader2Done << endl;
+    cout << "Reader 1: " << readersDone << endl;
+    // cout << "Reader1: " << reader1 << endl;
     // cout << "Reader2: " << reader2 << endl;
 }
 
@@ -1006,7 +1007,7 @@ void reader2 (VideoCapture& vid, Mat& readerMat2, bool& reader2)
     while(1)
     { 
 
-    if (reader1Done == true)
+    if (readersDone == true)
     {
         reader2 = false;
         break;
@@ -1026,7 +1027,7 @@ void reader2 (VideoCapture& vid, Mat& readerMat2, bool& reader2)
     //     break;
     // bitwise_not ( frame, frame); // invert frame
     // Write the frame into the file 'outcpp.avi'
-    while (reader2 != false && reader1Done == false && reader2Done == false)
+    while (reader2 != false && readersDone == false)
     {
         // frame.copyTo(readerMat2);
         // cout << "Reader 2 holding value..." << endl;
@@ -1045,11 +1046,11 @@ void reader2 (VideoCapture& vid, Mat& readerMat2, bool& reader2)
     
     }
     cout << "Reader is done capturing frames from Video 2." << endl;
-    reader2Done = true;
-    cout << "Reader 2: " << reader2Done << endl;
-    cout << "Reader 1: " << reader1Done << endl;
-    // cout << "Reader1: " << reader1 << endl;
-    cout << "Reader2: " << reader2 << endl;
+    readersDone = true;
+    cout << "Reader 2: " << readersDone << endl;
+    // cout << "Reader 1: " << reader1Done << endl;
+    // // cout << "Reader1: " << reader1 << endl;
+    // cout << "Reader2: " << reader2 << endl;
     return;
 }
 
