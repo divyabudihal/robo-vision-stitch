@@ -870,6 +870,8 @@
 using namespace cv;
 using namespace std;
 
+bool readersDone = false;
+
 void stream (VideoCapture& vid, string outputWindow)
 {
     namedWindow(outputWindow, WINDOW_NORMAL);
@@ -897,8 +899,11 @@ void outputVid ( Mat& readerMat1, Mat& readerMat2, bool& reader1, bool& reader2,
     VideoWriter vidOut(outputFile,CV_FOURCC('M','J','P','G'),10, Size(1920,1080)); 
     while(1)
     { 
-    Mat frame; 
-        
+    
+    if (readersDone == true)
+    {
+        break;
+    }
     
     while (reader1 == false)
     {
@@ -919,7 +924,7 @@ void outputVid ( Mat& readerMat1, Mat& readerMat2, bool& reader1, bool& reader2,
     {
         // cout << "Waiting for next Reader 2 frame..." << endl;
     }  // waits
-    readerMat2.copyTo(frame);
+    //readerMat2.copyTo(frame);
     reader2 = false;
     
     // cout << "Writing Reader 2 frame to file..." << endl;
@@ -948,6 +953,11 @@ void reader1 (VideoCapture& vid, Mat& readerMat1, bool& reader1)
     while(1)
     { 
     Mat frame; 
+
+    if (readersDone == true)
+    {
+        break;
+    }
         
     // Capture frame-by-frame 
    
@@ -979,6 +989,7 @@ void reader1 (VideoCapture& vid, Mat& readerMat1, bool& reader1)
         break;
     reader1 = true;
     }
+    readersDone = true;
 }
 
 void reader2 (VideoCapture& vid, Mat& readerMat2, bool& reader2)
@@ -986,6 +997,11 @@ void reader2 (VideoCapture& vid, Mat& readerMat2, bool& reader2)
     cout << "Reader 2 Active" << endl;
     while(1)
     { 
+    
+    if (readersDone == true)
+    {
+        break;
+    }
     // Mat frame; 
         
     // // Capture frame-by-frame 
@@ -1018,6 +1034,7 @@ void reader2 (VideoCapture& vid, Mat& readerMat2, bool& reader2)
         break;
     reader2 = true;
     }
+    readersDone = true;
 }
 
 
