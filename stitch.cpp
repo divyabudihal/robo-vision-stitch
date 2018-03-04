@@ -870,7 +870,9 @@
 using namespace cv;
 using namespace std;
 
-bool readersDone = false;
+bool reader1Done = false;
+bool reader2Done = false;
+
 
 void stream (VideoCapture& vid, string outputWindow)
 {
@@ -896,46 +898,46 @@ void outputVid ( Mat& readerMat1, Mat& readerMat2, bool& reader1, bool& reader2,
 
     // Define the codec and create VideoWriter object.The output is stored in 'outcpp.avi' file. 
     cout << "Starting to write to file..." << endl;
-    VideoWriter vidOut(outputFile,CV_FOURCC('M','J','P','G'),10, Size(1920,1080)); 
+    VideoWriter vidOut(outputFile,CV_FOURCC('M','J','P','G'),30, Size(1920,1080)); 
     while(1)
     { 
     
-    if (readersDone == true)
-    {
+    // if (reader1Done == true)
+    // {
+    //     break;
+    // }
+    // if (reader2Done ==  true)
+    // cout << "Start checking for conditions writer" << endl;
+
+    if (reader1Done == true && reader2Done == true)
         break;
-    }
     
-    while (reader1 == false)
+   
+    while (reader1 == false && reader1Done == false && reader2Done == false)
     {
         // cout << "Waiting for next Reader 1 frame..." << endl;
     } //wait
     // readerMat1.copyTo(frame);    
-    reader1 = false;
-    // cout << frame << endl;
-    // cout << "Writing Reader 1 frame to file..." << endl;   
-    // if (frame.empty())
-    //     break;
-    // bitwise_not ( frame, frame); 
-    vidOut.write(readerMat1);
+    if (reader1Done == true && reader1Done == false && reader2Done == false)
+    {
+        reader1 = false;
+        vidOut.write(readerMat1);
+        imshow( outputWindow, readerMat1 );
+    }
 
-    imshow( outputWindow, readerMat1 );
 
-    while (reader2 == false)
+    while (reader2 == false && reader1Done == false && reader2Done == false)
     {
         // cout << "Waiting for next Reader 2 frame..." << endl;
     }  // waits
     //readerMat2.copyTo(frame);
-    reader2 = false;
-    
-    // cout << "Writing Reader 2 frame to file..." << endl;
-    // If the frame is empty, break immediately
-    // if (frame.empty())
-    //     break;
-    // bitwise_not ( frame, frame); // invert frame
-    vidOut.write(readerMat2);
-
-    // Display the resulting frame    
-    imshow( outputWindow, readerMat2 );
+    if (reader2 == true && reader2Done == false && reader1Done == false)
+    {
+        reader2 = false;
+        vidOut.write(readerMat2);
+        imshow( outputWindow, readerMat2 ); // Display the resulting frame 
+    }
+        
 
     // Press  ESC on keyboard to  exit
     char c = (char)waitKey(1);
@@ -952,10 +954,11 @@ void reader1 (VideoCapture& vid, Mat& readerMat1, bool& reader1)
     cout << "Reader 1 Active" << endl;
     while(1)
     { 
-    Mat frame; 
-
-    if (readersDone == true)
+            // cout << "hi" << endl;
+    if (reader2Done == true)
     {
+        cout << "Reader 2 finished loop" << endl;
+        reader1 = false;
         break;
     }
         
@@ -971,15 +974,15 @@ void reader1 (VideoCapture& vid, Mat& readerMat1, bool& reader1)
    
    
     // Write the frame into the file 'outcpp.avi'
-    while (reader1 != false)
+    while (reader1 != false && reader1Done == false && reader2Done == false)
     {
         // frame.copyTo(readerMat1);
         // cout << "Reader 1 holding value..." << endl;
         // // reader1 = true;
     }
-
+    // cout << "Reading from Video 1" << endl;
     vid >> readerMat1;
-    bitwise_not ( readerMat1, readerMat1); // invert readerMat1
+    bitwise_not (readerMat1, readerMat1); // invert readerMat1
 
     if (readerMat1.empty())
         break;
@@ -989,7 +992,12 @@ void reader1 (VideoCapture& vid, Mat& readerMat1, bool& reader1)
         break;
     reader1 = true;
     }
-    readersDone = true;
+    cout << "Reader is done capturing frames from Video 1." << endl;
+    reader1Done = true;
+    cout << "Reader 2: " << reader2Done << endl;
+    cout << "Reader 1: " << reader1Done << endl;
+    cout << "Reader1: " << reader1 << endl;
+    // cout << "Reader2: " << reader2 << endl;
 }
 
 void reader2 (VideoCapture& vid, Mat& readerMat2, bool& reader2)
@@ -997,9 +1005,10 @@ void reader2 (VideoCapture& vid, Mat& readerMat2, bool& reader2)
     cout << "Reader 2 Active" << endl;
     while(1)
     { 
-    
-    if (readersDone == true)
+
+    if (reader1Done == true)
     {
+        reader2 = false;
         break;
     }
     // Mat frame; 
@@ -1017,7 +1026,7 @@ void reader2 (VideoCapture& vid, Mat& readerMat2, bool& reader2)
     //     break;
     // bitwise_not ( frame, frame); // invert frame
     // Write the frame into the file 'outcpp.avi'
-    while (reader2 != false)
+    while (reader2 != false && reader1Done == false && reader2Done == false)
     {
         // frame.copyTo(readerMat2);
         // cout << "Reader 2 holding value..." << endl;
@@ -1029,22 +1038,32 @@ void reader2 (VideoCapture& vid, Mat& readerMat2, bool& reader2)
     if (readerMat2.empty())
         break;
     // frame.copyTo(readerMat2);
+    reader2 = true;
     char c = (char)waitKey(1);
     if( c == 27 ) 
         break;
-    reader2 = true;
+    
     }
-    readersDone = true;
+    cout << "Reader is done capturing frames from Video 2." << endl;
+    reader2Done = true;
+    cout << "Reader 2: " << reader2Done << endl;
+    cout << "Reader 1: " << reader1Done << endl;
+    // cout << "Reader1: " << reader1 << endl;
+    cout << "Reader2: " << reader2 << endl;
+    return;
 }
 
 
 int main(int, char**)
 {
-    string vid1Location = "test5.mp4";
-    string vid2Location = "test6.mp4";
+    string vid1Location = "test7.mp4";
+    string vid2Location = "test8.mp4";
 
     string vid1Output = "video1.avi";
     string vid2Output = "video2.avi";
+
+    int frameHeight;
+    int frameWidth;
 
     Mat readerMat1;
     Mat readerMat2;
@@ -1064,6 +1083,31 @@ int main(int, char**)
     { 
         cout << "Video 2 File could not be successfully opened" << endl;
         return -1;
+    }
+
+    cout << vid1.get(CV_CAP_PROP_FPS) << endl;
+    cout << vid2.get(CV_CAP_PROP_FPS) << endl;
+
+    // choose frame height and frame width corresponding to the smallest dimensions present in both videos
+    
+    // choose smallest frame height
+    if (vid1.get(CV_CAP_PROP_FRAME_HEIGHT) <= vid2.get(CV_CAP_PROP_FRAME_HEIGHT))
+    {
+        frameHeight = vid1.get(CV_CAP_PROP_FRAME_HEIGHT);
+    }
+    else
+    {
+        frameHeight = vid2.get(CV_CAP_PROP_FRAME_HEIGHT);
+    }
+
+    // choose smallest frame width
+    if (vid1.get(CV_CAP_PROP_FRAME_WIDTH) <= vid2.get(CV_CAP_PROP_FRAME_WIDTH))
+    {
+        frameWidth = vid1.get(CV_CAP_PROP_FRAME_WIDTH);
+    }
+    else
+    {
+        frameWidth = vid2.get(CV_CAP_PROP_FRAME_WIDTH);
     }
 
     cout << "Initializing thread for Video 1..." << endl;
