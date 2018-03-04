@@ -81,17 +81,22 @@ void processVid(VideoCapture& vid, queue<myMat>& record, string vidInput)
     while(1)
     {
         Mat frame;
+        myMat enqueue;
         vid >> frame; // get a new frame from video
         if (frame.empty())
             break;
-        bitwise_not ( frame, frame);
+        bitwise_not (frame, frame);
         // imshow(outputWindow, frame);
-        record.push(myMat()); // create a new empty mat
-        frame.copyTo(record.front().frame);  // take a full copy
-        record.front().inputFile = vidInput;
-        cout << record.front().frame << endl;
+        // record.push(myMat()); // create a new empty mat
+        // frame.copyTo(record.front().frame);  // take a full copy
+        // record.front().inputFile = vidInput;
+        enqueue.inputFile = vidInput;
+        frame.copyTo(enqueue.frame);
+        record.push(enqueue);
+        cout << "Frame Size: " << (record.front().frame).size() << endl;
+        // cout << record.front().frame << endl;
         cout << record.front().inputFile << endl;
-        // cout << "Reading from " << vidInput << endl;
+        cout << "Reading from " << vidInput << endl;
         if(waitKey(30) >= 0) break;
     }
     return;
@@ -99,7 +104,7 @@ void processVid(VideoCapture& vid, queue<myMat>& record, string vidInput)
 
 
 
-void createVid( VideoCapture& vid, queue<myMat>& record, string outputFile)
+void createVid( VideoCapture& vid, queue<myMat>& recordVid1, queue<myMat>& recordVid2, string outputFile)
 {
     int frameWidth = vid.get(CV_CAP_PROP_FRAME_WIDTH); 
     int frameHeight = vid.get(CV_CAP_PROP_FRAME_HEIGHT); 
@@ -109,12 +114,26 @@ void createVid( VideoCapture& vid, queue<myMat>& record, string outputFile)
     VideoWriter vidOut(outputFile,CV_FOURCC('M','P','J','G'), 10, Size(frameWidth,frameHeight)); 
     Mat currFrame;
     cout << "Starting to create video ..." << endl;
-    while (!record.empty())
+    while (!recordVid1.empty() && !recordVid2.empty())
     {
-        cout << "Writing to " << outputFile << endl;
-        currFrame = record.front().frame;
-        vidOut.write(currFrame);
-        record.pop();
+        if ((recordVid1.front().frame).empty() || (recordVid2.front().frame).empty())
+            break;
+        //cout << "Writing to " << outputFile << endl;
+        cout << recordVid1.front().inputFile << endl;
+        cout << "Size of queue: " << recordVid1.size() << endl;
+        cout << "Frame Size: " << (recordVid1.front().frame).size() << endl;
+        
+        vidOut.write(recordVid1.front().frame);
+        recordVid1.pop();
+
+        cout << recordVid2.front().inputFile << endl;
+        cout << "Size of queue: " << recordVid2.size() << endl;
+        cout << "Frame Size: " << (recordVid2.front().frame).size() << endl;
+        
+        vidOut.write(recordVid2.front().frame);
+        recordVid1.pop();
+        //imshow("Test", record.front().frame);
+        
         if(waitKey(10) >= 0) break;
     }
 
@@ -126,10 +145,10 @@ int main(int, char**)
     // int frameWidth;
     // int frameRate;
     
-    string vid1Location = "./test1.mp4";
+    string vid1Location = "./test3.mp4";
     string vid2Location = "./iris-tests/field_trees.avi";
 
-    string vid1Input = "test1.mp4";
+    string vid1Input = "test3.mp4";
     string vid2Input = "field_trees.avi";
 
     string vid1Output = "video1.avi";
@@ -152,14 +171,18 @@ int main(int, char**)
         return -1;
     }
 
-    cout << "Initializing thread for Video 1..." << endl;
+    cout << "Initializing thread to process Video 1..." << endl;
     // thread out1 (outputVid, ref(vid1), "Video 1 Output", vid1Output);     // spawn new thread that calls foo()
     thread out1 (processVid, ref(vid1), ref(vid1Queue), vid1Input);     // spawn new thread that calls foo()
-    cout << "Initializing thread for Video 2..." << endl;
+    cout << "Initializing thread to process Video 2..." << endl;
     thread out2 (processVid, ref(vid2), ref(vid2Queue), vid2Input);  // spawn new thread that calls bar(0)
-
+    
+    cout << "Initializing thread to create output video...";
+    thread out3 (createVid, ref(vid2), ref(vid1Queue), ref(vid2Queue), vid1Output);
+   
     thread::id id1 = out1.get_id();
     thread::id id2 = out2.get_id();
+    thread::id id3 = out3.get_id();
     // cout << "Streaming of two videos now executing concurrently...\n";
 
     // // synchronize threads:
@@ -176,7 +199,22 @@ int main(int, char**)
         out2.join();               // pauses until second finishes
     }
 
-    createVid( vid1, vid1Queue, vid1Output);
+    if (out3.joinable())
+    {
+        cout << "Joining thread for Output Video, ID = " << id3 << endl;
+        out3.join();               // pauses until second finishes
+    }
+
+    // cout << (vid2Queue.front().frame).size() << endl;
+    // vid2Queue.pop();
+    // cout << (vid2Queue.front().frame).size() << endl;
+    // vid2Queue.pop();
+    // cout << (vid2Queue.front().frame).size() << endl;
+    // cout << (vid2Queue.front().frame).size() << endl;
+    // vid2Queue.pop();
+    // cout << (vid2Queue.front().frame).size() << endl;
+
+    // createVid( ref(vid2), ref(vid2Queue), vid2Output);
 
     // the camera will be deinitialized automatically in VideoCapture destructor
     destroyAllWindows();
