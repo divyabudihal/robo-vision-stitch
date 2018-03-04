@@ -921,8 +921,17 @@ void outputVid ( Mat& readerMat1, Mat& readerMat2, bool& reader1, bool& reader2,
     if (reader1 == true && readersDone == false)
     {
         reader1 = false;
-        vidOut.write(readerMat1);
-        imshow( outputWindow, readerMat1 );
+        if (readerMat1.empty())
+            break;
+        Mat frame;
+
+        // resize(readerMat1,readerMat1,Size(frameWidth, frameHeight));
+        resize(readerMat1,frame,Size(frameWidth, frameHeight));
+        //cout << readerMat1.size() << endl;
+        //if (readerMat1.size() == Size(frameWidth, frameHeight))
+        // vidOut.write(readerMat1);
+        vidOut.write(frame);
+        // imshow( outputWindow, readerMat1 );
     }
 
 
@@ -934,8 +943,11 @@ void outputVid ( Mat& readerMat1, Mat& readerMat2, bool& reader1, bool& reader2,
     if (reader2 == true && readersDone == false)
     {
         reader2 = false;
+        if (readerMat2.empty())
+            break;
+        resize(readerMat2,readerMat2,Size(frameWidth, frameHeight));
         vidOut.write(readerMat2);
-        imshow( outputWindow, readerMat2 ); // Display the resulting frame 
+        // imshow( outputWindow, readerMat2 ); // Display the resulting frame 
     }
         
 
@@ -948,110 +960,6 @@ void outputVid ( Mat& readerMat1, Mat& readerMat2, bool& reader1, bool& reader2,
     cout << "Finished writing to output file." << endl;
 }
 
-
-void reader1 (VideoCapture& vid, Mat& readerMat1, bool& reader1)
-{
-    cout << "Reader 1 Active" << endl;
-    while(1)
-    { 
-            // cout << "hi" << endl;
-    if (readersDone == true)
-    {
-        cout << "Reader 2 finished loop" << endl;
-        reader1 = false;
-        break;
-    }
-        
-    // Capture frame-by-frame 
-   
-
-    // if (reader1 == false)
-    // {
-    //     reader1 == true;
-    // }
-    // cout << "Reader 1 reading value..." << endl;
-    // If the frame is empty, break immediately
-   
-   
-    // Write the frame into the file 'outcpp.avi'
-    while (reader1 != false && readersDone == false)
-    {
-        // frame.copyTo(readerMat1);
-        // cout << "Reader 1 holding value..." << endl;
-        // // reader1 = true;
-    }
-    // cout << "Reading from Video 1" << endl;
-    vid >> readerMat1;
-    bitwise_not (readerMat1, readerMat1); // invert readerMat1
-
-    if (readerMat1.empty())
-        break;
-    // frame.copyTo(readerMat1);
-    char c = (char)waitKey(1);
-    if( c == 27 ) 
-        break;
-    reader1 = true;
-    }
-    cout << "Reader is done capturing frames from Video 1." << endl;
-    readersDone = true;
-    // cout << "Reader 2: " << reader2Done << endl;
-    cout << "Reader 1: " << readersDone << endl;
-    // cout << "Reader1: " << reader1 << endl;
-    // cout << "Reader2: " << reader2 << endl;
-}
-
-void reader2 (VideoCapture& vid, Mat& readerMat2, bool& reader2)
-{
-    cout << "Reader 2 Active" << endl;
-    while(1)
-    { 
-
-    if (readersDone == true)
-    {
-        reader2 = false;
-        break;
-    }
-    // Mat frame; 
-        
-    // // Capture frame-by-frame 
-    // vid >> frame;
-
-    // if (reader2 == false)
-    // {
-    //     reader2 == true;
-    // }
-    // cout << "Reader 2 reading value..." << endl;
-    // // If the frame is empty, break immediately
-    // if (frame.empty())
-    //     break;
-    // bitwise_not ( frame, frame); // invert frame
-    // Write the frame into the file 'outcpp.avi'
-    while (reader2 != false && readersDone == false)
-    {
-        // frame.copyTo(readerMat2);
-        // cout << "Reader 2 holding value..." << endl;
-        // // reader2 = true;
-    }
-    vid >> readerMat2;
-    bitwise_not ( readerMat2, readerMat2); // invert readerMat2
-
-    if (readerMat2.empty())
-        break;
-    // frame.copyTo(readerMat2);
-    reader2 = true;
-    char c = (char)waitKey(1);
-    if( c == 27 ) 
-        break;
-    
-    }
-    cout << "Reader is done capturing frames from Video 2." << endl;
-    readersDone = true;
-    cout << "Reader 2: " << readersDone << endl;
-    // cout << "Reader 1: " << reader1Done << endl;
-    // // cout << "Reader1: " << reader1 << endl;
-    // cout << "Reader2: " << reader2 << endl;
-    return;
-}
 
 void reader (VideoCapture& vid, Mat& readerMat, bool& reader, string vidInput)
 {
@@ -1070,8 +978,9 @@ void reader (VideoCapture& vid, Mat& readerMat, bool& reader, string vidInput)
        // wait until writer needs a new value
     }
     vid >> readerMat;
+    // cvtColor(readerMat, readerMat, CV_BGR2GRAY);
     bitwise_not ( readerMat, readerMat); // invert readerMat
-
+    
     if (readerMat.empty())
         break; // stop reading because the current video is over
     // frame.copyTo(readerMat);
@@ -1089,8 +998,11 @@ void reader (VideoCapture& vid, Mat& readerMat, bool& reader, string vidInput)
 
 int main(int, char**)
 {
-    string vid1Input = "test5.mp4";
-    string vid2Input = "test6.mp4";
+    // string vid1Input = "test5.mp4";
+    // string vid2Input = "tesst6.mp4";
+
+    string vid1Input = "./iris-tests/dynamic_test.mp4";
+    string vid2Input = "./iris-tests/field_trees.avi";
 
     string vid1Output = "video1.avi";
     string vid2Output = "video2.avi";
